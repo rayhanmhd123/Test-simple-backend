@@ -2,6 +2,9 @@ const http = require('http');
 const url = require('url');
 const admin = require('firebase-admin');
 
+// http://localhost:3000/list-tokens
+// http://localhost:3000/send-notification?title=MANDI%20YAHYA&body=MANDI%20OY
+
 // Inisialisasi Firebase Admin SDK
 const serviceAccount = require('./serviceAccountKey.json'); // Ganti dengan path ke file service account Anda
 admin.initializeApp({
