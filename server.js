@@ -3,18 +3,18 @@ const url = require('url');
 const admin = require('firebase-admin');
 
 // http://localhost:3000/list-tokens
-// http://localhost:3000/send-notification?title=MANDI%20YAHYA&body=MANDI%20OY
+// http://localhost:3000/send-notification?title=YAHYA&body=Hy
 
-// Inisialisasi Firebase Admin SDK
-const serviceAccount = require('./serviceAccountKey.json'); // Ganti dengan path ke file service account Anda
+// Initialize Firebase Admin SDK
+const serviceAccount = require('./serviceAccountKey.json'); // Replace with the path to your service account file
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// Array untuk menyimpan token (ganti dengan database di produksi)
+// Array to store tokens (replace with a database in production)
 let deviceTokens = [];
 
-// Fungsi untuk mengirim notifikasi ke setiap token
+// Function to send notifications to each token
 const sendNotification = async (title, body, tokens) => {
   const results = {
     successCount: 0,
@@ -22,16 +22,16 @@ const sendNotification = async (title, body, tokens) => {
     errors: [],
   };
 
-  // Loop untuk setiap token
+  // Loop through each token
   for (const token of tokens) {
     const message = {
       notification: {
         title: title || 'Pesan Baru',
         body: body || 'Ini adalah notifikasi dari server!',
       },
-      token: token, // Kirim ke satu token spesifik
-      android: { priority: 'high' }, // Prioritas tinggi untuk Android
-      apns: { headers: { 'apns-priority': '10' } }, // Prioritas tinggi untuk iOS
+      token: token, // Send to a specific token
+      android: { priority: 'high' }, // High priority for Android
+      apns: { headers: { 'apns-priority': '10' } }, // High priority for iOS
     };
 
     try {
@@ -48,23 +48,23 @@ const sendNotification = async (title, body, tokens) => {
   }`;
 };
 
-// Buat server HTTP
+// Create HTTP server
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
 
-  // Set header untuk semua respons (CORS)
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Izinkan semua domain
+  // Set headers for all responses (CORS)
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all domains
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Tangani preflight request (OPTIONS)
+  // Handle preflight request (OPTIONS)
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     return res.end();
   }
 
-  // Endpoint untuk menyimpan token: /save-token?token=DEVICE_TOKEN
+  // Endpoint to save token: /save-token?token=DEVICE_TOKEN
   if (pathname === '/save-token' && req.method === 'GET') {
     console.log('Request URL:', req.url);
     const token = parsedUrl.query.token;
@@ -79,7 +79,7 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  // Endpoint untuk menampilkan token: /list-tokens
+  // Endpoint to list tokens: /list-tokens
   else if (pathname === '/list-tokens' && req.method === 'GET') {
     res.statusCode = 200;
     if (deviceTokens.length === 0) {
@@ -89,7 +89,7 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  // Endpoint untuk mengirim notifikasi: /send-notification?title=Judul&body=Isi
+  // Endpoint to send notification: /send-notification?title=Title&body=Content
   else if (pathname === '/send-notification' && req.method === 'GET') {
     const { title, body } = parsedUrl.query;
     if (deviceTokens.length === 0) {
@@ -103,16 +103,16 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  // Jika endpoint tidak ditemukan
+  // If endpoint not found
   else {
     res.statusCode = 404;
     res.end('Endpoint tidak ditemukan. Gunakan: /save-token, /list-tokens, /send-notification');
   }
 });
 
-// Jalankan server di port 3000, mendengarkan semua antarmuka jaringan
+// Start server on port 3000, listening on all network interfaces
 const PORT = 3000;
-const HOST = '0.0.0.0'; // Mendengarkan semua IP jaringan
+const HOST = '0.0.0.0'; // Listen on all network IPs
 server.listen(PORT, HOST, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
   console.log(`Juga tersedia di alamat jaringan lokal (cek IP Anda)`);
